@@ -25,6 +25,19 @@ services:
     volumes:
       - redis-data:/data
 
+  cinema-seek:
+    image: cinema-seek:latest
+    build:
+      context: .
+      cache_from:
+        - cinema-seek:latest
+    environment:
+      - RAPIDAPI_KEY
+      - ELASTIC_USER
+      - ELASTIC_PASS
+    ports:
+      - "5000:5000"
+
 volumes:
   elastic-data:
   kibana-data:

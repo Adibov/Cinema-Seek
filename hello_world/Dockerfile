@@ -5,4 +5,4 @@ ADD requirements.txt .
 RUN pip install -r requirements.txt
 ADD . .
 
-CMD ["python", "cinema-seek.py"]
+CMD ["python", "cc_hw2_hello.py"]
