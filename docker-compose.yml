@@ -26,11 +26,11 @@ services:
       - redis-data:/data
 
   cinema-seek:
-    image: cinema-seek:latest
+    image: adibov/cinema-seek:latest
     build:
       context: .
       cache_from:
-        - cinema-seek:latest
+        - adibov/cinema-seek:latest
     environment:
       - RAPIDAPI_KEY
       - ELASTIC_USER

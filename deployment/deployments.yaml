@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cinema-seek-api
+  name: cinema-seek-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cinema-seek-api
+  template:
+    metadata:
+      labels:
+        app: cinema-seek-api
+    spec:
+      containers:
+        - image: adibov/cinema-seek:latest
+          imagePullPolicy: Always
+          name: app
+          env:
+            - name: RAPIDAPI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cinema-seek-creds
+                  key: RAPIDAPI_KEY
+            - name: ELASTIC_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: cinema-seek-cm
+                  key: ELASTIC_USER
+            - name: ELASTIC_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cinema-seek-creds
+                  key: ELASTIC_PASS
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 150M
+              memory: 200Mi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cinema-seek-redis
+  name: cinema-seek-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cinema-seek-redis
+  template:
+    metadata:
+      labels:
+        app: cinema-seek-redis
+    spec:
+      containers:
+        - image: redis:7.2.4
+          imagePullPolicy: IfNotPresent
+          name: app
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 150M
+              memory: 200Mi
+          volumeMounts:
+            - mountPath: "/data"
+              name: redis-data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cinema-seek-elastic
+  name: cinema-seek-elastic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cinema-seek-elastic
+  template:
+    metadata:
+      labels:
+        app: cinema-seek-elastic
+    spec:
+      containers:
+        - image: elasticsearch:8.13.0
+          imagePullPolicy: IfNotPresent
+          name: app
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: path.data
+              value: /usr/share/elasticsearch/data
+            - name: xpack.security.enabled
+              value: "false"
+            - name: xpack.security.enrollment.enabled
+              value: "false"
+            - name: xpack.security.http.ssl.enabled
+              value: "false"
+            - name: ELASTICSEARCH_HTTP_PORT_NUMBER
+              value: "9200"
