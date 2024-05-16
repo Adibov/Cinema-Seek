@@ -110,3 +110,5 @@ spec:
               value: "false"
             - name: ELASTICSEARCH_HTTP_PORT_NUMBER
               value: "9200"
+            - name: ES_JAVA_OPTS
+              value: "-Xms1g -Xmx1g"
